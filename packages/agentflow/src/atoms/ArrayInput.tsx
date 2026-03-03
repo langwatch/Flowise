@@ -33,8 +33,7 @@ export function ArrayInput({ inputParam, data, disabled = false, onDataChange, m
         setArrayItems(parsedArray)
 
         // Initialize parameter definitions for each item
-        // For now, simple replication of inputParam.array (no show/hide logic)
-        const initialParams = parsedArray.map(() => inputParam.array?.map((field) => ({ ...field, display: true })) || [])
+        const initialParams = parsedArray.map(() => inputParam.array?.map((field) => ({ ...field })) || [])
         setItemParameters(initialParams)
     }, [data.inputValues, inputParam.name, inputParam.array])
 
