@@ -129,6 +129,7 @@ export interface InputParam {
     acceptVariable?: boolean
     additionalParams?: boolean
     display?: boolean
+    array?: InputParam[]
 }
 
 export interface EdgeData {
