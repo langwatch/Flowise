@@ -25,9 +25,7 @@ function NodeInputHandleComponent({ nodeId, nodeColor, hidden }: NodeInputHandle
             backgroundColor: 'transparent',
             border: 'none',
             position: 'absolute' as const,
-            left: HANDLE_OFFSET,
-            top: '50%',
-            transform: 'translateY(-50%)'
+            left: HANDLE_OFFSET
         }),
         []
     )
