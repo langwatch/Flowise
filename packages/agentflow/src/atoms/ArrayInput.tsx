@@ -13,12 +13,13 @@ export interface ArrayInputProps {
     data: NodeData
     disabled?: boolean
     onDataChange?: (params: { inputParam: InputParam; newValue: unknown }) => void
+    minItems?: number
 }
 
 /**
  * ArrayInput component for rendering array-type inputs with compound items.
  */
-export function ArrayInput({ inputParam, data, disabled = false, onDataChange }: ArrayInputProps) {
+export function ArrayInput({ inputParam, data, disabled = false, onDataChange, minItems }: ArrayInputProps) {
     const theme = useTheme()
 
     // State management: array values and parameter definitions
@@ -92,6 +93,9 @@ export function ArrayInput({ inputParam, data, disabled = false, onDataChange }:
         [arrayItems, itemParameters, inputParam, onDataChange]
     )
 
+    // Check if item can be deleted based on minItems constraint
+    const canDeleteItem = !minItems || arrayItems.length > minItems
+
     return (
         <>
             {/* Render each array item */}
@@ -119,14 +123,18 @@ export function ArrayInput({ inputParam, data, disabled = false, onDataChange }:
                         <IconButton
                             title='Delete'
                             onClick={() => handleDeleteItem(index)}
-                            disabled={disabled}
+                            disabled={disabled || !canDeleteItem}
                             sx={{
                                 position: 'absolute',
                                 height: 35,
                                 width: 35,
                                 right: 10,
                                 top: 10,
-                                '&:hover': { color: theme.palette.error.main }
+                                '&:hover': { color: theme.palette.error.main },
+                                ...(!canDeleteItem && {
+                                    opacity: 0.3,
+                                    cursor: 'not-allowed'
+                                })
                             }}
                         >
                             <IconTrash />

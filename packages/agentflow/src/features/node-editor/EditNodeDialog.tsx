@@ -216,16 +216,26 @@ function EditNodeDialogComponent({ show, dialogProps, onCancel }: EditNodeDialog
                 {data &&
                     inputParams
                         .filter((inputParam) => inputParam.display !== false)
-                        .map((inputParam, index) => (
-                            <NodeInputHandler
-                                disabled={dialogProps.disabled}
-                                key={index}
-                                inputParam={inputParam}
-                                data={data}
-                                isAdditionalParams={true}
-                                onDataChange={onCustomDataChange}
-                            />
-                        ))}
+                        .map((inputParam, index) => {
+                            // Business logic: condition nodes require at least 1 item in array inputs
+                            const minItems =
+                                inputParam.type === 'array' &&
+                                (data.name === 'conditionAgentflow' || data.name === 'conditionAgentAgentflow')
+                                    ? 1
+                                    : undefined
+
+                            return (
+                                <NodeInputHandler
+                                    disabled={dialogProps.disabled}
+                                    key={index}
+                                    inputParam={inputParam}
+                                    data={data}
+                                    isAdditionalParams={true}
+                                    onDataChange={onCustomDataChange}
+                                    minItems={minItems}
+                                />
+                            )
+                        })}
             </DialogContent>
         </Dialog>
     )
