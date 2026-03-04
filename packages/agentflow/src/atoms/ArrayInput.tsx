@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { Box, Button, Chip, IconButton } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
@@ -17,25 +17,27 @@ export interface ArrayInputProps {
 }
 
 /**
- * ArrayInput component for rendering array-type inputs with compound items.
+ * Array input component for managing lists of structured data
+ *
+ * @param inputParam - Array field definition with structure
+ * @param data - Node data containing inputValues
+ * @param onDataChange - Callback invoked when array is modified
+ * @param disabled - Whether the input is disabled
+ * @param minItems - Minimum number of items required (delete disabled at minimum)
  */
 export function ArrayInput({ inputParam, data, disabled = false, onDataChange, minItems }: ArrayInputProps) {
     const theme = useTheme()
 
-    // State management: array values and parameter definitions
-    const [arrayItems, setArrayItems] = useState<Record<string, unknown>[]>([])
-    const [itemParameters, setItemParameters] = useState<InputParam[][]>([])
+    // Derive array items directly from props (single source of truth)
+    const arrayItems = Array.isArray(data.inputValues?.[inputParam.name])
+        ? (data.inputValues[inputParam.name] as Record<string, unknown>[])
+        : []
 
-    // Initialize from data.inputValues
-    useEffect(() => {
-        const initialArray = data.inputValues?.[inputParam.name]
-        const parsedArray = Array.isArray(initialArray) ? initialArray : []
-        setArrayItems(parsedArray)
-
-        // Initialize parameter definitions for each item
-        const initialParams = parsedArray.map(() => inputParam.array?.map((field) => ({ ...field })) || [])
-        setItemParameters(initialParams)
-    }, [data.inputValues, inputParam.name, inputParam.array])
+    // Derive item parameters for each array item (memoized for performance)
+    const itemParameters = useMemo(
+        () => arrayItems.map(() => inputParam.array?.map((field) => ({ ...field })) || []),
+        [arrayItems, inputParam.array]
+    )
 
     // Handle changes to individual fields within array items
     const handleItemInputChange = useCallback(
@@ -47,9 +49,7 @@ export function ArrayInput({ inputParam, data, disabled = false, onDataChange, m
             updatedItem[changedParam.name] = newValue
             updatedArrayItems[itemIndex] = updatedItem
 
-            setArrayItems(updatedArrayItems)
-
-            // Propagate change to parent
+            // Notify parent of change (parent will update props, causing re-render)
             onDataChange?.({ inputParam, newValue: updatedArrayItems })
         },
         [arrayItems, inputParam, onDataChange]
@@ -67,29 +67,20 @@ export function ArrayInput({ inputParam, data, disabled = false, onDataChange, m
         }
 
         const updatedArrayItems = [...arrayItems, newItem]
-        setArrayItems(updatedArrayItems)
 
-        // Add parameter definitions for new item
-        const newItemParams = inputParam.array?.map((field) => ({ ...field, display: true })) || []
-        setItemParameters([...itemParameters, newItemParams])
-
-        // Propagate change to parent
+        // Notify parent of change (parent will update props, causing re-render)
         onDataChange?.({ inputParam, newValue: updatedArrayItems })
-    }, [arrayItems, itemParameters, inputParam, onDataChange])
+    }, [arrayItems, inputParam, onDataChange])
 
     // Delete array item
     const handleDeleteItem = useCallback(
         (indexToDelete: number) => {
             const updatedArrayItems = arrayItems.filter((_, i) => i !== indexToDelete)
-            const updatedItemParameters = itemParameters.filter((_, i) => i !== indexToDelete)
 
-            setArrayItems(updatedArrayItems)
-            setItemParameters(updatedItemParameters)
-
-            // Propagate change to parent
+            // Notify parent of change (parent will update props, causing re-render)
             onDataChange?.({ inputParam, newValue: updatedArrayItems })
         },
-        [arrayItems, itemParameters, inputParam, onDataChange]
+        [arrayItems, inputParam, onDataChange]
     )
 
     // Check if item can be deleted based on minItems constraint
