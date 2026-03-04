@@ -27,9 +27,11 @@ export function ArrayInput({ inputParam, data, disabled = false, onDataChange }:
     const theme = useTheme()
 
     // Derive array items directly from props (single source of truth)
-    const arrayItems = Array.isArray(data.inputValues?.[inputParam.name])
-        ? (data.inputValues[inputParam.name] as Record<string, unknown>[])
-        : []
+    // Memoized to prevent unnecessary re-renders of child hooks
+    const arrayItems = useMemo(
+        () => (Array.isArray(data.inputValues?.[inputParam.name]) ? (data.inputValues[inputParam.name] as Record<string, unknown>[]) : []),
+        [data.inputValues, inputParam.name]
+    )
 
     // Derive item parameters for each array item (memoized for performance)
     const itemParameters = useMemo(
