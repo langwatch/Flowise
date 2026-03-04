@@ -13,7 +13,6 @@ export interface ArrayInputProps {
     data: NodeData
     disabled?: boolean
     onDataChange?: (params: { inputParam: InputParam; newValue: unknown }) => void
-    minItems?: number
 }
 
 /**
@@ -23,9 +22,8 @@ export interface ArrayInputProps {
  * @param data - Node data containing inputValues
  * @param onDataChange - Callback invoked when array is modified
  * @param disabled - Whether the input is disabled
- * @param minItems - Minimum number of items required (delete disabled at minimum)
  */
-export function ArrayInput({ inputParam, data, disabled = false, onDataChange, minItems }: ArrayInputProps) {
+export function ArrayInput({ inputParam, data, disabled = false, onDataChange }: ArrayInputProps) {
     const theme = useTheme()
 
     // Derive array items directly from props (single source of truth)
@@ -84,7 +82,7 @@ export function ArrayInput({ inputParam, data, disabled = false, onDataChange, m
     )
 
     // Check if item can be deleted based on minItems constraint
-    const canDeleteItem = !minItems || arrayItems.length > minItems
+    const canDeleteItem = !inputParam.minItems || arrayItems.length > inputParam.minItems
 
     return (
         <>

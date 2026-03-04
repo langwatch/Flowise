@@ -130,6 +130,8 @@ export interface InputParam {
     additionalParams?: boolean
     display?: boolean
     array?: InputParam[]
+    minItems?: number
+    maxItems?: number
 }
 
 export interface EdgeData {

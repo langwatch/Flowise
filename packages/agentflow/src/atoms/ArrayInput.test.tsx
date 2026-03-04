@@ -258,6 +258,11 @@ describe('ArrayInput', () => {
 
     // minItems constraint
     it('should respect minItems constraint and disable delete when minimum reached', () => {
+        const inputParamWithMinItems: InputParam = {
+            ...mockInputParam,
+            minItems: 2
+        }
+
         const dataWithItems: NodeData = {
             ...mockNodeData,
             inputValues: {
@@ -268,11 +273,32 @@ describe('ArrayInput', () => {
             }
         } as NodeData
 
-        render(<ArrayInput inputParam={mockInputParam} data={dataWithItems} onDataChange={mockOnDataChange} minItems={2} />)
+        render(<ArrayInput inputParam={inputParamWithMinItems} data={dataWithItems} onDataChange={mockOnDataChange} />)
 
         // Both delete buttons should be disabled when at minItems limit
         const deleteButtons = screen.getAllByTitle('Delete')
         expect(deleteButtons[0]).toBeDisabled()
         expect(deleteButtons[1]).toBeDisabled()
+    })
+
+    // Test reading minItems from inputParam
+    it('should read minItems from inputParam', () => {
+        const inputParamWithMinItems: InputParam = {
+            ...mockInputParam,
+            minItems: 1
+        }
+
+        const dataWithOneItem: NodeData = {
+            ...mockNodeData,
+            inputValues: {
+                testArray: [{ field1: 'value1', field2: 10 }]
+            }
+        } as NodeData
+
+        render(<ArrayInput inputParam={inputParamWithMinItems} data={dataWithOneItem} onDataChange={mockOnDataChange} />)
+
+        // Delete button should be disabled when at minItems limit
+        const deleteButton = screen.getByTitle('Delete')
+        expect(deleteButton).toBeDisabled()
     })
 })
